@@ -1,0 +1,55 @@
+!!! 5
+html(land="en")
+  head
+    title Pollocator - Find a polling station near you
+
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+
+    script(type='text/javascript', src='/js/quo.js')'
+
+    link(rel='stylesheet', href='/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/css/bootstrap-responsive.min.css')
+    link(rel='stylesheet', href='/css/styles.css')
+
+  body
+    div#container.fluid.header
+      section#responsive
+        h2 Poll Locator for U.S. General Election
+        div.row-fluid
+          div#addr.span12.offset2.content
+            div.span8
+              input.input-xxlarge.address(type='text', name='address', placeholder='Enter your home address')
+            div.span8
+              button.btn.btn-primary(type='submit') Check
+          div#list.span12.offset2.content
+            div.span8.listItems
+
+    script
+      $$(document).ready(function(){
+        $$('.btn').on('click', function(evt) {
+          evt.preventDefault();
+
+          var addr = $$('input.address').val();
+          console.log(addr)
+          $$.post('/poll', {address: addr}, function(data) {
+          console.log(data);
+            //data = JSON.parse(data);
+            if (!data.error) {
+              $$('#addr').hide();
+              
+              $$('div.listItems').append("<pre class='prettyprint linenums'><ol class='linenums'></ol></pre>");
+              //var ol = $('ol.linenums');
+
+              data.pollingLocations.forEach(function(loc, i) {
+                $$('ol.linenums').append("<li class='L"+i+"'><span class='pln'>"+loc.address.locationName+": </span>" + 
+                "<span class='pln'>"+loc.address.line1.toLowerCase()+" </span>" + 
+                "<span class='pln'>"+loc.address.city.toLowerCase()+"</span>");
+              });
+
+              $$('#list').show();
+            } else {
+              $$('input.address').attr('placeholder', data.error);
+            }
+          });
+        });
+      });

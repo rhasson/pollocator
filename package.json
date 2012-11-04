@@ -1,0 +1,12 @@
+{
+    "name": "pollocator",
+    "author": "roy hasson",
+    "version": "0.0.1",
+    "private": false,
+    "dependencies": {
+      "express": "2.5.8",
+      "jade": "0.27.6",
+      "request": "2.11.4",
+    },
+    "engine": "node 0.8"
+}

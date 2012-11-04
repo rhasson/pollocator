@@ -1,0 +1,13 @@
+div.row-fluid
+  div.span8
+    input.input-large.address(type='text', name='address', placeholder='Enter your full address')
+    button.btn.btn-primary(type='submit') Check
+
+script
+  (function(){
+    if ($$) {
+      $$.on('click', '.btn', function(evt) {
+        console.log(evt);
+      });
+    }
+  })();
