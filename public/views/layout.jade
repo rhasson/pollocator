@@ -16,18 +16,25 @@ html(land="en")
       section#responsive
         h2 Poll Locator for U.S. General Election
         div.row-fluid
-          div#addr.span12.offset2.content
-            div.span8
-              input.input-xxlarge.address(type='text', name='address', placeholder='Enter your home address')
-            div.span8
-              button.btn.btn-primary(type='submit') Check
+          div#addr.span12.offset2.content.control-group
+            div.controls
+              div.span8
+                input.input-xxlarge.address(type='text', name='address', placeholder='Enter your home address')
+              div.span8
+                button.btn.btn-primary(type='submit') Check
           div#list.span12.offset2.content
             div.span8.listItems
+            div.span8.back
 
     script
       $$(document).ready(function(){
         $$('.btn').on('click', function(evt) {
           evt.preventDefault();
+
+          $$('div#addr').removeClass('error');
+          $$('input.address').on('focus', function() {
+            $$('div#addr').removeClass('error');
+          });
 
           var addr = $$('input.address').val();
           console.log(addr)
@@ -43,12 +50,23 @@ html(land="en")
               data.pollingLocations.forEach(function(loc, i) {
                 $$('ol.linenums').append("<li class='L"+i+"'><span class='pln'>"+loc.address.locationName+": </span>" + 
                 "<span class='pln'>"+loc.address.line1.toLowerCase()+" </span>" + 
-                "<span class='pln'>"+loc.address.city.toLowerCase()+"</span>");
+                "<span class='pln'>"+loc.address.city.toLowerCase()+"</span>" +
+                "</li>");
+              });
+              $$('div.back').append("<span><a class='back_link' href='#'>Go Back</a></span>");
+              $$('a.back_link').on('click', function() {
+                $$('input.address').val('');
+                $$('div#list').hide();
+                $$('div#addr').show();
+                $$('div.listItems').empty();
+                $$('div.back').empty();
+
               });
 
-              $$('#list').show();
+              $$('div#list').show();
             } else {
-              $$('input.address').attr('placeholder', data.error);
+              $$('div#addr').addClass('error');
+              $$('input.address').val('').attr('placeholder', data.error);
             }
           });
         });
