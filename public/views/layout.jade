@@ -14,16 +14,23 @@ html(land="en")
   body
     div#container.fluid.header
       section#responsive
-        h2 Poll Locator for U.S. General Election
         div.row-fluid
+          div#header.span12
+            h2 Poll Locator for U.S. General Election
+        div.row-fluid.box1
           div#addr.span12.offset2.content.control-group
             div.controls
               div.span8
                 input.input-xxlarge.address(type='text', name='address', placeholder='Enter your home address')
-              div.span8
-                button.btn.btn-primary(type='submit') Check
+        div.row-fluid.box1
+          div.span12.offset2
+            div.span8
+              button.btn.btn-primary(type='submit') Check
+        div.row-fluid.box2
           div#list.span12.offset2.content
             div.span8.listItems
+        div.row-fluid.box2
+          div.span12.offset2.content
             div.span8.back
 
     script
@@ -40,30 +47,31 @@ html(land="en")
           console.log(addr)
           $$.post('/poll', {address: addr}, function(data) {
           console.log(data);
-            //data = JSON.parse(data);
             if (!data.error) {
-              $$('#addr').hide();
+              $$('div.box1').hide();
               
-              $$('div.listItems').append("<pre class='prettyprint linenums'><ol class='linenums'></ol></pre>");
-              //var ol = $('ol.linenums');
+              //$$('div.listItems').append("<div class='span8'></div>");
 
+              var t = '';
               data.pollingLocations.forEach(function(loc, i) {
-                $$('ol.linenums').append("<li class='L"+i+"'><span class='pln'>"+loc.address.locationName+": </span>" + 
-                "<span class='pln'>"+loc.address.line1.toLowerCase()+" </span>" + 
-                "<span class='pln'>"+loc.address.city.toLowerCase()+"</span>" +
-                "</li>");
+                t = "<h6>"+loc.address.locationName+" " + 
+                loc.address.line1.toLowerCase()+" " + 
+                loc.address.city.toLowerCase() +
+                "</h6>";
+                $$('div.listItems').append(t);
               });
+
               $$('div.back').append("<span><a class='back_link' href='#'>Go Back</a></span>");
               $$('a.back_link').on('click', function() {
                 $$('input.address').val('');
-                $$('div#list').hide();
-                $$('div#addr').show();
+                $$('input.address').attr('placeholder', 'Enter your home address')
+                $$('div.box2').hide();
+                $$('div.box1').show();
                 $$('div.listItems').empty();
                 $$('div.back').empty();
-
               });
 
-              $$('div#list').show();
+              $$('div.box2').show();
             } else {
               $$('div#addr').addClass('error');
               $$('input.address').val('').attr('placeholder', data.error);
