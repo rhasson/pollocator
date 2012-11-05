@@ -30,6 +30,8 @@ html(land="en")
         div.row-fluid.box2
           div#list.span12.offset2.content
             div.span8.listItems
+            table.table
+              tbody
         div.row-fluid.box2
           div.span12.offset2.content
             div.span8.back
@@ -55,21 +57,32 @@ html(land="en")
             if (!data.error) {
               $$('div.box1').hide();
               
-              //$$('div.listItems').append("<div class='span8'></div>");
-
               var t = '';
               var time, time_label;
+              var li = $$('div.listItems');
+              if (data.earlyVoteSites) {
+                data.earlyVoteSites.forEach(function(loc, i) {
+                  time = makeTime(data.date, loc.pollingHours);
+                  if ('start' in time) time_label = ' - Start '+time.start;
+                  else if ('end' in time) time_label = ' - End '+time.end;
+                  else if ('close' in time) time_label = ' - Closed '+time.close;
+
+                  t = "<h6>Early voting available at - "+formatLocation(loc) +
+                  time_label +"</h6>";
+                  li.append(t);
+                });              
+              }
+
+              t = '', time = '', time_label = '', b = '';
               data.pollingLocations.forEach(function(loc, i) {
                 time = makeTime(data.date, loc.pollingHours);
                 if ('start' in time) time_label = ' - Start '+time.start;
                 else if ('end' in time) time_label = ' - End '+time.end;
                 else if ('close' in time) time_label = ' - Closed '+time.close;
 
-                t = "<h6>"+loc.address.locationName+" " + 
-                loc.address.line1.toLowerCase()+" " + 
-                loc.address.city.toLowerCase() +
+                t = "<h6>" + formatLocation(loc) +
                 time_label +"</h6>";
-                $$('div.listItems').append(t);
+                li.append(t);
               });
 
               $$('div.back').append("<span><a class='back_link' href='#'>Go Back</a></span>");
@@ -97,11 +110,44 @@ html(land="en")
 
           var today = moment(new Date()); 
           var electionStartDate = moment(d+'T'+startTime, "YYYY-MM-DDTHH:mm:ss");
-          //var today = moment("2012-11-06T20:30:00", "YYYY-MM-DDTHH:mm:ss");
+          //var today = moment("2012-11-06T10:30:00", "YYYY-MM-DDTHH:mm:ss");
           var electionEndDate = moment(d+'T'+endTime, "YYYY-MM-DDTHH:mm:ss");
 
-          if (today.diff(electionStartDate) < 0) return {start: electionStartDate.from(today)} //now is earlier than the start date of election
-          if (today.diff(electionEndDate) > 0) return {close: electionEndDate.from(today)}
-          if (today.diff(electionStartDate) > 0) return {end: electionEndDate.from(today)} //now is later than the start date of election
+          if (today.diff(electionStartDate) < 0) {
+            return {start: electionStartDate.from(today)+" ("+electionStartDate.format('h:mmA')+" - "+electionEndDate.format('h:mmA')+")"} 
+            //now is earlier than the start date of election
+          }
+          if (today.diff(electionEndDate) > 0) {
+            return {close: electionEndDate.from(today)+" ("+electionEndDate.format('h:mmA')+")"}
+          }
+          if (today.diff(electionStartDate) > 0) {
+            return {end: electionEndDate.from(today)+" ("+electionEndDate.format('h:mmA')+")"} 
+            //now is later than the start date of election
+          }
+        }
+
+        function formatLocation(location) {
+          var loc = [], l;
+          var keys = Object.keys(location.address);
+
+          keys.forEach(function(key) {
+            l = toCamelCase(location.address[key]);
+            loc.push(l);
+          });
+          loc.pop(); //remove zip
+          loc.pop(); //remove state
+          return loc.join(' ');
+
+          function toCamelCase(text) {
+            var words = text.split(' ');
+            var x, w, z=[];
+            for (var i=0; i<words.length; i++) {
+              x = words[i].toLowerCase().split('');
+              x[0] = x[0].toUpperCase();
+              w = x.join('');
+              z.push(w);
+            }
+            return z.join(' ');
+          }
         }
       });

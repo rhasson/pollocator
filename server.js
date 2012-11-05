@@ -31,6 +31,10 @@ server.post('/poll', function(req, res) {
 				resp_body.date = body.election.electionDay;
 				resp_body.pollingLocations = body.pollingLocations;
 
+				if (body.earlyVoteSites) {
+					resp_body.earlyVoteSites = body.earlyVoteSites;
+				}
+
 				res.send(resp_body);
 			} else {
 				console.log('failed')
