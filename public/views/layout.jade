@@ -44,12 +44,16 @@ html(land="en")
 
     script
       $$(document).ready(function(){
-        $$('.btn').on('click', function(evt) {
+        $$('.btn').on('tap', clickHandler);
+        
+        function clickHandler(evt) {
           evt.preventDefault();
+          $$('.btn').off('tap');
 
           $$('div#addr').removeClass('error');
           $$('input.address').on('focus', function() {
             $$('div#addr').removeClass('error');
+            $$('input.address').off('focus');
           });
 
           var addr = $$('input.address').val();
@@ -86,13 +90,14 @@ html(land="en")
               });
 
               $$('div.back').append("<span><a class='back_link' href='#'>Go Back</a></span>");
-              $$('a.back_link').on('click', function() {
+              $$('a.back_link').on('tap', function() {
                 $$('input.address').val('');
                 $$('input.address').attr('placeholder', 'Enter your home address')
                 $$('div.box2').hide();
                 $$('div.box1').show();
                 $$('div.listItems').empty();
                 $$('div.back').empty();
+                $$('a.back_link').off('tap');
               });
 
               $$('div.box2').show();
@@ -101,7 +106,7 @@ html(land="en")
               $$('input.address').val('').attr('placeholder', data.error);
             }
           });
-        });
+        };
 
         function makeTime(d, t) {
           var time = t.split('-');
