@@ -5,7 +5,8 @@ html(land="en")
 
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
 
-    script(type='text/javascript', src='/js/quo.js')'
+    script(type='text/javascript', src='/js/quo.js')
+    script(type='text/javascript', src='/js/moment.min.js')
 
     link(rel='stylesheet', href='/css/bootstrap.min.css')
     link(rel='stylesheet', href='/css/bootstrap-responsive.min.css')
@@ -32,6 +33,12 @@ html(land="en")
         div.row-fluid.box2
           div.span12.offset2.content
             div.span8.back
+        div.row-fluid.box3
+          div.span12.offset2.content
+            div.span8.questions
+        div.row-fluid.box4
+          div.span12.offset2.content
+            div.span8.contestants
 
     script
       $$(document).ready(function(){
@@ -44,20 +51,24 @@ html(land="en")
           });
 
           var addr = $$('input.address').val();
-          console.log(addr)
           $$.post('/poll', {address: addr}, function(data) {
-          console.log(data);
             if (!data.error) {
               $$('div.box1').hide();
               
               //$$('div.listItems').append("<div class='span8'></div>");
 
               var t = '';
+              var time, time_label;
               data.pollingLocations.forEach(function(loc, i) {
+                time = makeTime(data.date, loc.pollingHours);
+                if ('start' in time) time_label = ' - Start '+time.start;
+                else if ('end' in time) time_label = ' - End '+time.end;
+                else if ('close' in time) time_label = ' - Closed '+time.close;
+
                 t = "<h6>"+loc.address.locationName+" " + 
                 loc.address.line1.toLowerCase()+" " + 
                 loc.address.city.toLowerCase() +
-                "</h6>";
+                time_label +"</h6>";
                 $$('div.listItems').append(t);
               });
 
@@ -78,4 +89,19 @@ html(land="en")
             }
           });
         });
+
+        function makeTime(d, t) {
+          var time = t.split('-');
+          var startTime = time[0] ? time[0] : "08:00:00";
+          var endTime = time[1] ? time[1] : "17:00:00";
+
+          var today = moment(new Date()); 
+          var electionStartDate = moment(d+'T'+startTime, "YYYY-MM-DDTHH:mm:ss");
+          //var today = moment("2012-11-06T20:30:00", "YYYY-MM-DDTHH:mm:ss");
+          var electionEndDate = moment(d+'T'+endTime, "YYYY-MM-DDTHH:mm:ss");
+
+          if (today.diff(electionStartDate) < 0) return {start: electionStartDate.from(today)} //now is earlier than the start date of election
+          if (today.diff(electionEndDate) > 0) return {close: electionEndDate.from(today)}
+          if (today.diff(electionStartDate) > 0) return {end: electionEndDate.from(today)} //now is later than the start date of election
+        }
       });
