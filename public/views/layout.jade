@@ -48,7 +48,6 @@ html(land="en")
         
         function clickHandler(evt) {
           evt.preventDefault();
-          $$('.btn').off('tap');
 
           $$('div#addr').removeClass('error');
           $$('input.address').on('focus', function() {
